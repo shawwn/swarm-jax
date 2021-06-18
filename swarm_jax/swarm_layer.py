@@ -80,7 +80,7 @@ def init_fn(master_rng, data, init_fn, optimizer):
     print('(local_device_count,) + init_rng.shape', (local_device_count,) + init_rng.shape)
     init_rng = jnp.broadcast_to(init_rng, (local_device_count,) + init_rng.shape)
     print('init_rng.shape', init_rng.shape)
-    print('data', dir(data), type(data))
+    print('data.shape', data.shape)
     params = jax.pmap(init_fn)(init_rng, data)
 
     cpu_device = jax.devices("cpu")[0]
