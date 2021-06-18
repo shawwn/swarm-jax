@@ -16,8 +16,8 @@ import optax
 
 from pprint import pprint as pp
 
-#head_info = ray.init(address="auto", resources={"tpu": 999})  # pretend we have infinite tpus lol
-head_info = ray.init(address="auto")
+head_info = ray.init(resources={"tpu": 999})  # pretend we have infinite tpus lol
+#head_info = ray.init(address="auto")
 pp(head_info)
 
 train_dataset = TextLoader("data/enwik9", batchsize=(8, 8), sample_size=1024, length=90000000)
