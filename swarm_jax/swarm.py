@@ -58,7 +58,7 @@ class Swarm:
 
     def run(self, epochs, log_path, ckpt_path):
         assert ray.is_initialized()  # needs a valid ray cluster
-        writer = SummaryWriter(log_path, flush_secs=5)
+        writer = SummaryWriter(log_path+'/_scalars', flush_secs=5)
         writers = None
 
         ckpt_loads = [layer.load.remote(f"{ckpt_path}/{i}/") for i, layer in enumerate(self.all_layers)]
