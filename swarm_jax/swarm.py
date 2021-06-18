@@ -30,6 +30,7 @@ class Swarm:
         self.minibatches = 1
         #self.microbatches = 32 # 32 microbatches per sample
         self.microbatches = 1
+        self.concurrent_examples = 16
         self.loss_scale = loss_scale
 
         assert ray.is_initialized()  # needs a valid ray cluster to start
@@ -63,7 +64,7 @@ class Swarm:
         ckpt_loads = [layer.load.remote(f"{ckpt_path}/{i}/") for i, layer in enumerate(self.all_layers)]
         print(f"checkpoint load status: {ray.get(ckpt_loads)}")
 
-        pool = ThreadPool(16)  # have max 16 concurrent examples in the network
+        pool = ThreadPool(self.concurrent_examples)  # have max 16 concurrent examples in the network
 
         for e in range(epochs):
             if e % 5000 == 0 or os.path.isfile('SAVE'):
@@ -77,6 +78,8 @@ class Swarm:
                 print(f"checkpoint saved")
 
             data = self.dataloader()
+            seq_length = data['target'].shape[-1]
+            batch_size = np.prod(data['target'].shape[0:-1])
 
             def map_fn(_):
                 return drive_example(self, data)
@@ -86,8 +89,11 @@ class Swarm:
             result = np.array(result)
             opts = [layers.opt.remote() for layers in self.all_layers]
             ray.wait(opts, num_returns=len(opts))
-            elapsed = time.time() - start
-            tokens_per_sec = np.prod(data['target'].shape) / elapsed
+            secs_per_step = time.time() - start
+            token_count = np.prod(data['target'].shape)
+            tokens_per_step = self.microbatches * token_count
+            tokens_per_sec = tokens_per_step / secs_per_step
+            steps_per_sec = 1.0 / secs_per_step
 
             error, cos_err, loss = result.mean(axis=0)
             if writers is None:
@@ -101,6 +107,19 @@ class Swarm:
             writer.add_scalar("loss", loss / self.loss_scale, e)
             writer.add_scalar("reconstruction_error", error, e)
             writer.add_scalar("reconstruction_cos_error", cos_err, e)
+
+            writer.add_scalar("stats/steps/sec", steps_per_sec, e)
+            writer.add_scalar("stats/secs/step", secs_per_step, e)
+            writer.add_scalar("stats/tokens/sec", tokens_per_sec, e)
+            writer.add_scalar("stats/tokens/step", tokens_per_step, e)
+
+            writer.add_scalar("settings/swarm.concurrent_examples", self.concurrent_examples)
+            writer.add_scalar("settings/swarm.microbatches", self.microbatches, e)
+            writer.add_scalar("settings/swarm.loss_scale", self.loss_scale)
+            writer.add_scalar("settings/swarm.model.d_model", self.model.d_model)
+            writer.add_scalar("settings/swarm.model.vocab", self.model.vocab)
+            writer.add_scalar("settings/swarm.model.seq_length", seq_length)
+            writer.add_scalar("settings/swarm.model.batch_size", batch_size)
 
             if os.path.isfile('DEBUG'):
                 try:
