@@ -20,7 +20,9 @@ from pprint import pprint as pp
 head_info = ray.init(address="auto")
 pp(head_info)
 
-train_dataset = TextLoader("data/enwik9", batchsize=(8, 8), sample_size=1024, length=90000000)
+#n_ctx = 1024
+n_ctx = 64
+train_dataset = TextLoader("data/enwik9", batchsize=(8, 8), sample_size=n_ctx, length=90000000)
 
 optimizer = optax.chain(
     optax.clip_by_global_norm(0.25),
