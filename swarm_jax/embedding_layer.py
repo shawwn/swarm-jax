@@ -36,6 +36,9 @@ class EmbeddingLayer(object):
         print("start init")
         self.devices = jax.local_device_count()
         print("done jax init", self.devices)
+        print('self.vocab', self.vocab)
+        print('self.d_model', self.d_model)
+        print('obs.shape', obs.shape)
 
         def embed_forward(x):
             embed_init = hk.initializers.TruncatedNormal(stddev=0.02)
@@ -43,8 +46,6 @@ class EmbeddingLayer(object):
             print('x.shape', x.shape)
             seq_length = x.shape[1]
             print('seq_length', seq_length)
-            print('self.vocab', self.vocab)
-            print('self.d_model', self.d_model)
             positional_embeddings = hk.get_parameter('pos_embs', [seq_length, d_model], init=embed_init)
             print('positional_embeddings.shape', positional_embeddings.shape)
 
