@@ -70,10 +70,9 @@ class Swarm:
                     os.unlink('SAVE')
                 except:
                     pass
-                print("saving checkpoint...")
+                print("saving checkpoint %s/{i}/%s" % (ckpt_path, f"ckpt_{e:06}.pkl"))
                 ckpt_saves = [layer.save.remote(f"{ckpt_path}/{i}/", e) for i, layer in enumerate(self.all_layers)]
                 ray.wait(ckpt_saves, num_returns=len(ckpt_saves))
-
                 print(f"checkpoint saved")
 
             data = self.dataloader()
