@@ -55,7 +55,7 @@ class ReversibleLayer(object):
             sys.stdout.flush()
             print(self.layer, '...')
             sys.stdout.flush()
-            ray.util.pdb.set_trace()
+            #ray.util.pdb.set_trace()
             # print(self.layer, 'x2.shape', x2.shape)
             y2 = gy1 + x2
             print(self.layer, 'y2.shape', y2.shape)
