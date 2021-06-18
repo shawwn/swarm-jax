@@ -35,7 +35,7 @@ class EmbeddingLayer(object):
 
         print("start init")
         self.devices = jax.local_device_count()
-        print("done jax init")
+        print("done jax init", self.devices)
 
         def embed_forward(x):
             embed_init = hk.initializers.TruncatedNormal(stddev=0.02)
