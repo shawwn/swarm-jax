@@ -14,7 +14,11 @@ from swarm_jax.swarm import Swarm
 import ray
 import optax
 
-ray.init(address="local", resources={"tpu": 999})  # pretend we have infinite tpus lol
+from pprint import pprint as pp
+
+#head_info = ray.init(address="auto", resources={"tpu": 999})  # pretend we have infinite tpus lol
+head_info = ray.init(address="auto", resources={"tpu": 1})
+pp(head_info)
 
 train_dataset = TextLoader("data/enwik9", batchsize=(8, 8), sample_size=1024, length=90000000)
 
