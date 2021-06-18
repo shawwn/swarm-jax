@@ -16,22 +16,53 @@ import optax
 
 from pprint import pprint as pp
 
+import argparse
+
+p = argparse.ArgumentParser(
+    # description=__doc__,
+    # formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+p.add_argument('--name', type=str, default='512_30L',
+               help='checkpoints are saved under ckpt/{name}')
+p.add_argument('--dataset', type=str, default='data/enwik9',
+               help='a path to a text file to train on')
+p.add_argument('--dataset-length', type=int, default=90000000,
+               help='how large is the dataset file?')
+p.add_argument('--n_ctx', type=int, default=64,
+               help='how large is the context window?')
+p.add_argument('--lr', type=float, default=2e-4,
+               help='optimizer learning rate')
+p.add_argument('--beta1', type=float, default=0.9,
+               help='adam optimizer beta1 momentum')
+p.add_argument('--beta2', type=float, default=0.99,
+               help='adam optimizer beta2 momentum')
+p.add_argument('--eps', type=float, default=1e-5,
+               help='adam optimizer epsilon')
+p.add_argument('--clip-by-global-norm', type=float, default=0.25,
+               help='clip gradients by global norm')
+p.add_argument('--batch', type=int, default=64,
+               help='the global batch size')
+
+args = p.parse_args()
+
+if args.batch % 8 != 0:
+    raise ValueError("--batch must be divisible by 8")
+
 #head_info = ray.init(local_mode=True, resources={"tpu": 999})  # pretend we have infinite tpus lol
 head_info = ray.init(address="auto")
 pp(head_info)
 
-#n_ctx = 1024
-n_ctx = 64
-train_dataset = TextLoader("data/enwik9", batchsize=(8, 8), sample_size=n_ctx, length=90000000)
+batchsize = (args.batch // 8, 8)
+train_dataset = TextLoader(args.dataset, batchsize=batchsize, sample_size=args.n_ctx, length=args.dataset_length)
 
 optimizer = optax.chain(
-    optax.clip_by_global_norm(0.25),
-    optax.adam(2e-4, b1=0.9, b2=0.99, eps=1e-5))
+    optax.clip_by_global_norm(args.clip_by_global_norm),
+    optax.adam(args.lr, b1=args.beta1, b2=args.beta2, eps=args.eps))
 
 prec = NetworkPrecision(fwd_act="uint16", rev_act="uint16", grad="uint16")
 
 model = SwarmCharTransformerBig
 swarm = Swarm(model, optimizer, 2 ** 16, train_dataset.get_samples, prec)
-swarm.run(100000, "runs/512_30L", "ckpt/512_30L")
+swarm.run(10000000, f"runs/{args.name}", f"ckpt/{args.name}")
 
 ray.shutdown()
