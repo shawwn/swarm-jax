@@ -33,13 +33,27 @@ class ReversibleLayer(object):
 
         def forward(x):
             f, g = layer_init(layer)
+            print(self.layer, 'x.shape', x.shape)
+            print(self.layer, 'f.shape', f.shape)
+            print(self.layer, 'g.shape', g.shape)
 
             hidden = x.shape[-1]
+            print(self.layer, 'hidden', hidden)
             x1 = x[:, :, :hidden // 2]
             x2 = x[:, :, hidden // 2:]
+            print(self.layer, 'x1.shape', x1.shape)
+            print(self.layer, 'x2.shape', x2.shape)
 
-            y1 = f(x2) + x1
-            y2 = g(y1) + x2
+            fx2 = f(x2)
+            print(self.layer, 'f(x2).shape', fx2.shape)
+            # print(self.layer, 'x1.shape', x1.shape)
+            y1 = fx2 + x1
+            print(self.layer, 'y1.shape', y1.shape)
+            gy1 = g(y1)
+            print(self.layer, 'g(y1).shape', gy1.shape)
+            # print(self.layer, 'x2.shape', x2.shape)
+            y2 = gy1 + x2
+            print(self.layer, 'y2.shape', y2.shape)
 
             assert x1.shape == y1.shape
             assert x2.shape == y2.shape
