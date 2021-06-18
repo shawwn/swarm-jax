@@ -16,7 +16,7 @@ import optax
 
 from pprint import pprint as pp
 
-head_info = ray.init(resources={"tpu": 999})  # pretend we have infinite tpus lol
+head_info = ray.init(num_cpus=1, resources={"tpu": 999})  # pretend we have infinite tpus lol
 #head_info = ray.init(address="auto")
 pp(head_info)
 
