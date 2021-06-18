@@ -67,7 +67,7 @@ class Swarm:
         pool = ThreadPool(self.concurrent_examples)  # have max 16 concurrent examples in the network
 
         for e in range(epochs):
-            if e % 5000 == 0 or os.path.isfile('SAVE'):
+            if e > 0 and e % 5000 == 0 or os.path.isfile('SAVE'):
                 try:
                     os.unlink('SAVE')
                 except:
