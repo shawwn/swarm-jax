@@ -31,20 +31,20 @@ class Swarm:
         assert ray.is_initialized()  # needs a valid ray cluster to start
 
         example = self.dataloader()
-        self.embedding = EmbeddingLayer.options(max_concurrency=1).remote(example["obs"], self.model.vocab,
-                                                                          self.model.d_model, self.optimizer, precision)
+        self.embedding = EmbeddingLayer.options(max_concurrency=64).remote(example["obs"], self.model.vocab,
+                                                                           self.model.d_model, self.optimizer, precision)
         self.embedding.run.remote()
 
         x, _ = self.embedding.embed_forward.remote(example["obs"])
 
-        self.proj = ProjLayer.options(max_concurrency=1).remote(x, self.model.vocab, self.model.d_model, self.optimizer,
-                                                                self.loss_scale, precision)
+        self.proj = ProjLayer.options(max_concurrency=64).remote(x, self.model.vocab, self.model.d_model, self.optimizer,
+                                                                 self.loss_scale, precision)
         self.proj.run.remote()
 
         self.layers = []
         for i in range(model.rev_layers):
             self.layers.append(
-                ReversibleLayer.options(max_concurrency=1).remote(self.model.rev_init, i, x, self.optimizer, precision))
+                ReversibleLayer.options(max_concurrency=64).remote(self.model.rev_init, i, x, self.optimizer, precision))
 
         for l in self.layers:
             l.run.remote()
