@@ -40,10 +40,16 @@ class EmbeddingLayer(object):
         def embed_forward(x):
             embed_init = hk.initializers.TruncatedNormal(stddev=0.02)
 
+            print('x.shape', x.shape)
             seq_length = x.shape[1]
+            print('seq_length', seq_length)
+            print('self.vocab', self.vocab)
+            print('self.d_model', self.d_model)
             positional_embeddings = hk.get_parameter('pos_embs', [seq_length, d_model], init=embed_init)
+            print('positional_embeddings.shape', positional_embeddings.shape)
 
             o = hk.Embed(vocab, d_model, w_init=embed_init, name="embedding")(x) + positional_embeddings
+            print('o.shape', o.shape)
 
             return o
 
