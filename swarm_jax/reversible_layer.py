@@ -34,8 +34,8 @@ class ReversibleLayer(object):
         def forward(x):
             f, g = layer_init(layer)
             print(self.layer, 'x.shape', x.shape)
-            print(self.layer, 'f.shape', f.shape)
-            print(self.layer, 'g.shape', g.shape)
+            # print(self.layer, 'f', f)
+            # print(self.layer, 'g', g)
 
             hidden = x.shape[-1]
             print(self.layer, 'hidden', hidden)
