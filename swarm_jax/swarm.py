@@ -27,6 +27,8 @@ class Swarm:
         )
         self.dataloader = dataloader
         self.minibatches = 1
+        #self.microbatches = 32 # 32 microbatches per sample
+        self.microbatches = 1
         self.loss_scale = loss_scale
 
         assert ray.is_initialized()  # needs a valid ray cluster to start
@@ -78,7 +80,7 @@ class Swarm:
             def map_fn(_):
                 return drive_example(self, data)
 
-            result = list(pool.imap_unordered(map_fn, range(32)))  # 32 microbatches per batch
+            result = list(pool.imap_unordered(map_fn, range(self.microbatches)))
             result = np.array(result)
             error, cos_err, loss = result.mean(axis=(0, 2))
 
