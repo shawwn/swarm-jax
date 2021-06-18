@@ -52,7 +52,7 @@ if args.batch % 8 != 0:
 head_info = ray.init(address="auto")
 pp(head_info)
 
-batchsize = (args.batch // 8, 8)
+batchsize = (8, args.batch // 8)
 train_dataset = TextLoader(args.dataset, batchsize=batchsize, sample_size=args.n_ctx, length=args.dataset_length)
 
 optimizer = optax.chain(
