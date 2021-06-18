@@ -57,6 +57,7 @@ class Swarm:
     def run(self, epochs, log_path, ckpt_path):
         assert ray.is_initialized()  # needs a valid ray cluster
         writer = SummaryWriter(log_path, flush_secs=5)
+        writers = None
 
         ckpt_loads = [layer.load.remote(f"{ckpt_path}/{i}/") for i, layer in enumerate(self.all_layers)]
         print(f"checkpoint load status: {ray.get(ckpt_loads)}")
@@ -82,14 +83,22 @@ class Swarm:
 
             result = list(pool.imap_unordered(map_fn, range(self.microbatches)))
             result = np.array(result)
-            error, cos_err, loss = result.mean(axis=(0, 2))
+            error, cos_err, loss = result.mean(axis=0)
+            if writers is None:
+                writers = [SummaryWriter(log_path+'/core%04d' % i, flush_secs=5) for i in range(len(loss))]
+            for i, core_writer in enumerate(writers):
+                core_writer.add_scalar("loss", loss[i] / self.loss_scale, e)
+                core_writer.add_scalar("reconstruction_error", error[i], e)
+                core_writer.add_scalar("reconstruction_cos_error", cos_err[i], e)
 
+            error, cos_err, loss = result.mean(axis=(0, 2))
             opts = [layers.opt.remote() for layers in self.all_layers]
             ray.wait(opts, num_returns=len(opts))
 
             writer.add_scalar("loss", loss / self.loss_scale, e)
             writer.add_scalar("reconstruction_error", error, e)
             writer.add_scalar("reconstruction_cos_error", cos_err, e)
+
             if os.path.isfile('DEBUG'):
                 try:
                     os.unlink('DEBUG')
