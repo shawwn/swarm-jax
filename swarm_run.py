@@ -8,7 +8,7 @@ os.environ["JAX_DEBUG_NANS"] = "True"
 from swarm_jax.swarm_layer import NetworkPrecision
 
 from loader import TextLoader
-from swarm_jax.model import SwarmCharTransformer
+from swarm_jax.model import SwarmCharTransformer, SwarmCharTransformerBig
 from swarm_jax.swarm import Swarm
 
 import ray
