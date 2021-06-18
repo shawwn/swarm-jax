@@ -1,5 +1,6 @@
 from multiprocessing.pool import ThreadPool
 
+import os
 import numpy as np
 import optax
 import ray
@@ -61,7 +62,12 @@ class Swarm:
         pool = ThreadPool(16)  # have max 16 concurrent examples in the network
 
         for e in range(epochs):
-            if e % 5000 == 0:
+            if e % 5000 == 0 or os.path.isfile('SAVE'):
+                try:
+                    os.unlink('SAVE')
+                except:
+                    pass
+                print("saving checkpoint...")
                 ckpt_saves = [layer.save.remote(f"{ckpt_path}/{i}/", e) for i, layer in enumerate(self.all_layers)]
                 ray.wait(ckpt_saves, num_returns=len(ckpt_saves))
 
@@ -82,6 +88,12 @@ class Swarm:
             writer.add_scalar("loss", loss / self.loss_scale, e)
             writer.add_scalar("reconstruction_error", error, e)
             writer.add_scalar("reconstruction_cos_error", cos_err, e)
+            if os.path.isfile('DEBUG'):
+                try:
+                    os.unlink('DEBUG')
+                except:
+                    pass
+                ray.util.pdb.set_trace()
             print(e, loss / self.loss_scale)
 
 
