@@ -113,13 +113,13 @@ class Swarm:
             writer.add_scalar("stats/tokens/sec", tokens_per_sec, e)
             writer.add_scalar("stats/tokens/step", tokens_per_step, e)
 
-            writer.add_scalar("settings/swarm.concurrent_examples", self.concurrent_examples)
+            writer.add_scalar("settings/swarm.concurrent_examples", self.concurrent_examples, e)
             writer.add_scalar("settings/swarm.microbatches", self.microbatches, e)
-            writer.add_scalar("settings/swarm.loss_scale", self.loss_scale)
-            writer.add_scalar("settings/swarm.model.d_model", self.model.d_model)
-            writer.add_scalar("settings/swarm.model.vocab", self.model.vocab)
-            writer.add_scalar("settings/swarm.model.seq_length", seq_length)
-            writer.add_scalar("settings/swarm.model.batch_size", batch_size)
+            writer.add_scalar("settings/swarm.loss_scale", self.loss_scale, e)
+            writer.add_scalar("settings/swarm.model.d_model", self.model.d_model, e)
+            writer.add_scalar("settings/swarm.model.vocab", self.model.vocab, e)
+            writer.add_scalar("settings/swarm.model.seq_length", seq_length, e)
+            writer.add_scalar("settings/swarm.model.batch_size", batch_size, e)
 
             if os.path.isfile('DEBUG'):
                 try:
@@ -127,7 +127,7 @@ class Swarm:
                 except:
                     pass
                 ray.util.pdb.set_trace()
-            print(e, 'loss=%.3f' % (loss / self.loss_scale), '%.2f tokens/sec' % tokens_per_sec)
+            print('step=%d' % e, 'loss=%.3f' % (loss / self.loss_scale), 'tok/sec=%.2f' % tokens_per_sec, 'secs/step=%.2f' % secs_per_step)
 
 
 # take a training example and shoves it through forward and backward of all layers
