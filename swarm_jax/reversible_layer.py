@@ -51,6 +51,10 @@ class ReversibleLayer(object):
             print(self.layer, 'y1.shape', y1.shape)
             gy1 = g(y1)
             print(self.layer, 'g(y1).shape', gy1.shape)
+            import sys
+            sys.stdout.flush()
+            print(self.layer, '...')
+            sys.stdout.flush()
             # print(self.layer, 'x2.shape', x2.shape)
             y2 = gy1 + x2
             print(self.layer, 'y2.shape', y2.shape)
