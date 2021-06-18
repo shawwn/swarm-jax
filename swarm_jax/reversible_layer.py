@@ -34,8 +34,8 @@ class ReversibleLayer(object):
         def forward(x):
             f, g = layer_init(layer)
             print(self.layer, 'x.shape', x.shape)
-            # print(self.layer, 'f', f)
-            # print(self.layer, 'g', g)
+            print(self.layer, 'f', f)
+            print(self.layer, 'g', g)
 
             hidden = x.shape[-1]
             print(self.layer, 'hidden', hidden)
@@ -55,6 +55,7 @@ class ReversibleLayer(object):
             sys.stdout.flush()
             print(self.layer, '...')
             sys.stdout.flush()
+            ray.util.pdb.set_trace()
             # print(self.layer, 'x2.shape', x2.shape)
             y2 = gy1 + x2
             print(self.layer, 'y2.shape', y2.shape)
