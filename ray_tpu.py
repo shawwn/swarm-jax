@@ -106,11 +106,12 @@ def wait_til(name, zone, state):
 def get_connection(
         name,
         zone,
+        external=False,
 ):
     info = check_tpu(name, zone)
     outputs = []
     for i in info["networkEndpoints"]:
-        outputs.append(Connection(i["ipAddress"],
+        outputs.append(Connection(i["ipAddress"] if not external else i['accessConfig']['externalIp'],
                                   connect_kwargs={
                                       "key_filename": os.path.expanduser('~/.ssh/google_compute_engine'), }))
     return outputs
