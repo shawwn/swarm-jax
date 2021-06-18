@@ -1,6 +1,7 @@
 from multiprocessing.pool import ThreadPool
 
 import os
+import time
 import numpy as np
 import optax
 import ray
@@ -80,8 +81,14 @@ class Swarm:
             def map_fn(_):
                 return drive_example(self, data)
 
+            start = time.time()
             result = list(pool.imap_unordered(map_fn, range(self.microbatches)))
             result = np.array(result)
+            opts = [layers.opt.remote() for layers in self.all_layers]
+            ray.wait(opts, num_returns=len(opts))
+            elapsed = time.time() - start
+            tokens_per_sec = np.prod(data['target'].shape) / elapsed
+
             error, cos_err, loss = result.mean(axis=0)
             if writers is None:
                 writers = [SummaryWriter(log_path+'/core%04d' % i, flush_secs=5) for i in range(len(loss))]
@@ -91,9 +98,6 @@ class Swarm:
                 core_writer.add_scalar("reconstruction_cos_error", cos_err[i], e)
 
             error, cos_err, loss = result.mean(axis=(0, 2))
-            opts = [layers.opt.remote() for layers in self.all_layers]
-            ray.wait(opts, num_returns=len(opts))
-
             writer.add_scalar("loss", loss / self.loss_scale, e)
             writer.add_scalar("reconstruction_error", error, e)
             writer.add_scalar("reconstruction_cos_error", cos_err, e)
@@ -104,7 +108,7 @@ class Swarm:
                 except:
                     pass
                 ray.util.pdb.set_trace()
-            print(e, loss / self.loss_scale)
+            print(e, 'loss=%.3f' % (loss / self.loss_scale), '%.2f tokens/sec' % tokens_per_sec)
 
 
 # take a training example and shoves it through forward and backward of all layers
