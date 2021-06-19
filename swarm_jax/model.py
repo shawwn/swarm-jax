@@ -96,9 +96,7 @@ class SwarmModel:
         self.rev_layers = rev_layers
 
 
-n_layer = 6
-
-def char_layer_init(i):
+def char_layer_init(i, n_layer=6):
     if i % 2:
         f = MultiHeadAttentionFixed(
             num_heads=8,
