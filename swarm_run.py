@@ -34,12 +34,20 @@ p.add_argument('--dataset_dtype', type=str, default='uint8',
 
 p.add_argument('--n_ctx', type=int, default=64,
                help='how large is the context window?')
+p.add_argument('--n_head', type=int, default=8,
+               help='how many attention heads?')
 p.add_argument('--n_layer', type=int, default=6,
                help='how many layers? (You need to create n_layer+2 TPUs to do any training runs.)')
 p.add_argument('--d_model', type=int, default=2048,
                help='hidden dim size')
 p.add_argument('--vocab', type=int, default=None,
                help='vocab size. Use 256 for char GPT, 50432 for openai-style GPT, etc')
+
+p.add_argument('--mlp_widening_factor', type=int, default=4)
+p.add_argument('--attn_key_size', type=int, default=128)
+p.add_argument('--attn_query_size', type=int, default=None)
+p.add_argument('--attn_value_size', type=int, default=None)
+p.add_argument('--attn_model_size', type=int, default=None)
 
 p.add_argument('--lr', type=float, default=2e-4,
                help='optimizer learning rate')
@@ -94,7 +102,15 @@ prec = NetworkPrecision(fwd_act=args.precision_fwd, rev_act=args.precision_rev, 
 model = SwarmModel(
     vocab=args.vocab,
     d_model=args.d_model,
-    rev_init=partial(char_layer_init, n_layer=args.n_layer),
+    rev_init=partial(char_layer_init,
+                     num_heads=args.n_head,
+                     n_layer=args.n_layer,
+                     widening_factor=args.mlp_widening_factor,
+                     key_size=args.attn_key_size,
+                     query_size=args.attn_query_size,
+                     value_size=args.attn_value_size,
+                     model_size=args.attn_model_size,
+                     ),
     rev_layers=args.n_layer,
 )
 swarm = Swarm(model, optimizer, 2 ** args.loss_scale, train_dataset.get_samples, prec)

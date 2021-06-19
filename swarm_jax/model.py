@@ -96,30 +96,32 @@ class SwarmModel:
         self.rev_layers = rev_layers
 
 
-def char_layer_init(i, n_layer=6):
+def char_layer_init(i, n_layer=6, num_heads=8, key_size=128, widening_factor=4, **multihead_kwargs):
     if i % 2:
         f = MultiHeadAttentionFixed(
-            num_heads=8,
-            key_size=128,
+            num_heads=num_heads,
+            key_size=key_size,
             w_init_scale=2. / n_layer,
             name=f'l{i}_f_attn',
+            **multihead_kwargs,
         )
         g = DenseBlock(
             init_scale=2. / n_layer,
             name=f'l{i}_g_dense',
-            widening_factor=4
+            widening_factor=widening_factor
         )
     else:
         f = DenseBlock(
             init_scale=2. / n_layer,
             name=f'l{i}_f_dense',
-            widening_factor=4
+            widening_factor=widening_factor
         )
         g = MultiHeadAttentionFixed(
-            num_heads=8,
-            key_size=128,
+            num_heads=num_heads,
+            key_size=key_size,
             w_init_scale=2. / n_layer,
             name=f'l{i}_g_attn',
+            **multihead_kwargs,
         )
     return f, g
 
