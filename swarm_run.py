@@ -59,9 +59,9 @@ p.add_argument('--beta2', type=float, default=0.999,
                help='adam optimizer beta2 momentum')
 p.add_argument('--eps', type=float, default=1e-6,
                help='adam optimizer epsilon')
-p.add_argument('--clip_by_global_norm', type=float, default=1.0,
+p.add_argument('--clip_by_global_norm', type=float, default=0.25,
                help='clip gradients by global norm')
-p.add_argument('--weight_decay', type=float, default=0.1)
+p.add_argument('--weight_decay', type=float, default=0.0)
 p.add_argument('--batch', type=int, default=64,
                help='the global batch size')
 
