@@ -10,7 +10,7 @@ def dtype_size(dtype):
     bits = re.findall(r'[0-9]+$', dtype)
     if not bits:
         raise ValueError("Unknown dtype: {}".format(dtype))
-    bits = int(bits)
+    bits = int(bits[-1])
     return (bits + 7) // 8
 
 
