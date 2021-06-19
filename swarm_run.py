@@ -31,6 +31,8 @@ p.add_argument('--dataset_length', type=int, default=0,
                help='how large is the dataset file?')
 p.add_argument('--dataset_dtype', type=str, default='uint8',
                help='Does the file contain bytes (uint8), tokens (uint16), or large tokens (uint32, uint6)?')
+p.add_argument('--dataset_align', type=int, default=1,
+               help='When seeking to random offsets, ensure that the offsets are divisible by this.')
 
 p.add_argument('--n_ctx', type=int, default=64,
                help='how large is the context window?')
@@ -94,7 +96,8 @@ train_dataset = TextLoader(args.dataset,
                            batchsize=batchsize,
                            sample_size=args.n_ctx,
                            length=args.dataset_length,
-                           dtype=args.dataset_dtype)
+                           dtype=args.dataset_dtype,
+                           align=args.dataset_align)
 
 optimizer = optax.chain(
     optax.clip_by_global_norm(args.clip_by_global_norm),

@@ -15,7 +15,7 @@ def dtype_size(dtype):
 
 
 class TextLoader():
-    def __init__(self, fname, batchsize, sample_size, offset=0, length=0, dtype='uint8'):
+    def __init__(self, fname, batchsize, sample_size, offset=0, length=0, dtype='uint8', align=1):
         self.f = open(fname, "r+b")
         self.mm = mmap.mmap(self.f.fileno(), length=length, offset=offset)
         self.file_size = os.stat(fname).st_size
@@ -30,6 +30,7 @@ class TextLoader():
         self.ss = sample_size
 
         self.dtype = dtype
+        self.align = align
         self.np_mm = np.memmap(fname, dtype=self.dtype, mode='r', shape=(self.file_total,))
 
     @property
@@ -38,7 +39,7 @@ class TextLoader():
         return self.file_size // dtype_size(self.dtype)
 
     def get_samples(self):
-        sample = np.random.randint(0, self.file_total - 2 - self.ss, self.bs)
+        sample = np.random.randint(0, self.file_total - 2 - self.ss, self.bs) // self.align * self.align
         batch = np.zeros((self.bs, self.ss + 1))
 
         for i in range(self.ss + 1):
