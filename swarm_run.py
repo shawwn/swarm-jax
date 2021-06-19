@@ -43,6 +43,15 @@ p.add_argument('--clip-by-global-norm', type=float, default=0.25,
 p.add_argument('--batch', type=int, default=64,
                help='the global batch size')
 
+p.add_argument('--precision_fwd', type=str, default="uint16",
+               help='quantize the forward pass activations before sending them over the network')
+p.add_argument('--precision_rev', type=str, default="uint16",
+               help='quantize the reverse pass activations before sending them over the network')
+p.add_argument('--precision_grad', type=str, default="uint16",
+               help='quantize the gradients before sending them over the network')
+p.add_argument('--loss_scale', type=float, default=16,
+               help='loss is divided by 2 ** this')
+
 args = p.parse_args()
 
 if args.batch % 8 != 0:
@@ -59,10 +68,10 @@ optimizer = optax.chain(
     optax.clip_by_global_norm(args.clip_by_global_norm),
     optax.adam(args.lr, b1=args.beta1, b2=args.beta2, eps=args.eps))
 
-prec = NetworkPrecision(fwd_act="uint16", rev_act="uint16", grad="uint16")
+prec = NetworkPrecision(fwd_act=args.precision_fwd, rev_act=args.precision_rev, grad=args.precision_grad)
 
 model = SwarmCharTransformerBig
-swarm = Swarm(model, optimizer, 2 ** 16, train_dataset.get_samples, prec)
+swarm = Swarm(model, optimizer, 2 ** args.loss_scale, train_dataset.get_samples, prec)
 swarm.run(10000000, f"runs/{args.name}", f"ckpt/{args.name}")
 
 ray.shutdown()
