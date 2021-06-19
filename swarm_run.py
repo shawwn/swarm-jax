@@ -26,7 +26,7 @@ p.add_argument('--name', type=str, default='512_30L',
                help='checkpoints are saved under ckpt/{name}')
 p.add_argument('--dataset', type=str, default='data/enwik9',
                help='a path to a text file to train on')
-p.add_argument('--dataset-length', type=int, default=90000000,
+p.add_argument('--dataset_length', type=int, default=90_000_000,
                help='how large is the dataset file?')
 p.add_argument('--n_ctx', type=int, default=64,
                help='how large is the context window?')
@@ -34,22 +34,22 @@ p.add_argument('--lr', type=float, default=2e-4,
                help='optimizer learning rate')
 p.add_argument('--beta1', type=float, default=0.9,
                help='adam optimizer beta1 momentum')
-p.add_argument('--beta2', type=float, default=0.99,
+p.add_argument('--beta2', type=float, default=0.999,
                help='adam optimizer beta2 momentum')
-p.add_argument('--eps', type=float, default=1e-5,
+p.add_argument('--eps', type=float, default=1e-6,
                help='adam optimizer epsilon')
 p.add_argument('--clip-by-global-norm', type=float, default=0.25,
                help='clip gradients by global norm')
 p.add_argument('--batch', type=int, default=64,
                help='the global batch size')
 
-p.add_argument('--precision_fwd', type=str, default="uint16",
+p.add_argument('--precision_fwd', type=str, default="float32",  # default="uint16",
                help='quantize the forward pass activations before sending them over the network')
-p.add_argument('--precision_rev', type=str, default="uint16",
+p.add_argument('--precision_rev', type=str, default="float32",  # default="uint16",
                help='quantize the reverse pass activations before sending them over the network')
-p.add_argument('--precision_grad', type=str, default="uint16",
+p.add_argument('--precision_grad', type=str, default="float32",  # default="uint16",
                help='quantize the gradients before sending them over the network')
-p.add_argument('--loss_scale', type=float, default=16,
+p.add_argument('--loss_scale', type=float, default=0,  # default=16,
                help='loss is divided by 2 ** this')
 
 args = p.parse_args()
