@@ -99,9 +99,12 @@ train_dataset = TextLoader(args.dataset,
                            dtype=args.dataset_dtype,
                            align=args.dataset_align)
 
-optimizer = optax.chain(
-    optax.clip_by_global_norm(args.clip_by_global_norm),
-    optax.adam(args.lr, b1=args.beta1, b2=args.beta2, eps=args.eps))
+if args.clip_by_global_norm:
+    optimizer = optax.chain(
+        optax.clip_by_global_norm(args.clip_by_global_norm),
+        optax.adam(args.lr, b1=args.beta1, b2=args.beta2, eps=args.eps))
+else:
+    optimizer = optax.adam(args.lr, b1=args.beta1, b2=args.beta2, eps=args.eps)
 
 prec = NetworkPrecision(fwd_act=args.precision_fwd, rev_act=args.precision_rev, grad=args.precision_grad)
 
