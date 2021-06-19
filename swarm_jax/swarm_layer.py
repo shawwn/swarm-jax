@@ -202,7 +202,7 @@ def int_quantize_jit(x: jnp.ndarray, max_int: int, to_type: str):
 
 
 def quantize(x: jnp.ndarray, to_type: str):
-    assert to_type in ["float16", "float32", "uint16", "uint8"]
+    assert to_type in ["bfloat16", "float16", "float32", "uint16", "uint8"]
 
     if "int" in to_type:
         max_int = 2 ** 8 - 1 if to_type == "uint8" else 2 ** 16 - 1
@@ -218,7 +218,7 @@ def int_dequantize_jit(x: jnp.ndarray, scale: jnp.ndarray, offset: jnp.ndarray, 
 
 def dequantize(x, to_type: str):
     from_type, data = x
-    assert from_type in ["float16", "float32", "uint16", "uint8"]
+    assert from_type in ["bfloat16", "float16", "float32", "uint16", "uint8"]
 
     if "int" in from_type:
         offset, scale, data = data
@@ -252,6 +252,10 @@ if __name__ == "__main__":
     q = quantize(r, "uint8")
     d = dequantize(q, "float32")
     assert jnp.allclose(r, d, atol=1e-1, rtol=1e-1)
+
+    q = quantize(r, "bfloat16")
+    d = dequantize(q, "float32")
+    assert jnp.allclose(r, d, atol=1e-3, rtol=1e-3)
 
     q = quantize(r, "float16")
     d = dequantize(q, "float32")
