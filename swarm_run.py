@@ -2,9 +2,9 @@ import os
 from functools import partial
 
 #os.environ["XLA_FLAGS"] = "--xla_gpu_cuda_data_dir=/opt/cuda-10.1"
-os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
-os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"] = "platform"
-os.environ["JAX_DEBUG_NANS"] = "True"
+# os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+# os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"] = "platform"
+# os.environ["JAX_DEBUG_NANS"] = "True"
 
 from swarm_jax.swarm_layer import NetworkPrecision
 
