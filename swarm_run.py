@@ -39,7 +39,7 @@ p.add_argument('--n_layer', type=int, default=6,
 p.add_argument('--d_model', type=int, default=2048,
                help='hidden dim size')
 p.add_argument('--vocab', type=int, default=None,
-               help='vocab size. Use 256 for char GPT, 65536 for openai-style GPT, etc')
+               help='vocab size. Use 256 for char GPT, 50432 for openai-style GPT, etc')
 
 p.add_argument('--lr', type=float, default=2e-4,
                help='optimizer learning rate')

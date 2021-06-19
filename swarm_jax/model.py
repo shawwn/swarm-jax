@@ -128,12 +128,12 @@ SwarmCharTransformer = SwarmModel(
     vocab=256,
     d_model=512,
     rev_init=char_layer_init,
-    rev_layers=n_layer
+    rev_layers=6 # n_layer
 )
 
 SwarmCharTransformerBig = SwarmModel(
     vocab=256,
     d_model=2048,
     rev_init=char_layer_init,
-    rev_layers=n_layer
+    rev_layers=6 # n_layer
 )
