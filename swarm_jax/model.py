@@ -3,6 +3,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from typing import Optional, Callable
+from optax._src.transform import GradientTransformation, AdditiveWeightDecayState
 
 
 class MultiHeadAttentionFixed(hk.Module):
@@ -94,6 +95,26 @@ class SwarmModel:
         self.d_model = d_model
         self.rev_init = rev_init
         self.rev_layers = rev_layers
+
+
+def additive_weight_decay(weight_decay: float = 0.0) -> GradientTransformation:
+    """Add parameter scaled by `weight_decay`, to all parameters with more than one dim (i.e. exclude ln, bias etc)
+
+    Args:
+      weight_decay: a scalar weight decay rate.
+
+    Returns:
+      An (init_fn, update_fn) tuple.
+    """
+
+    def init_fn(_):
+        return AdditiveWeightDecayState()
+
+    def update_fn(updates, state, params):
+        updates = jax.tree_multimap(lambda g, p: g + weight_decay * p * (len(g.shape) > 1), updates, params)
+        return updates, state
+
+    return GradientTransformation(init_fn, update_fn)
 
 
 def char_layer_init(i, n_layer=6, num_heads=8, key_size=128, widening_factor=4, **multihead_kwargs):
