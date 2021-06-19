@@ -56,7 +56,7 @@ class Swarm:
 
         self.all_layers = [self.embedding] + self.layers + [self.proj]
 
-    def run(self, epochs, log_path, ckpt_path):
+    def run(self, epochs, log_path, ckpt_path, start_step=0):
         assert ray.is_initialized()  # needs a valid ray cluster
         writer = SummaryWriter(log_path+'/_scalars', flush_secs=5)
         writers = None
@@ -66,7 +66,7 @@ class Swarm:
 
         pool = ThreadPool(self.concurrent_examples)  # have max 16 concurrent examples in the network
 
-        for e in range(epochs):
+        for e in range(start_step, epochs):
             if e > 0 and e % 5000 == 0 or os.path.isfile('SAVE'):
                 try:
                     os.unlink('SAVE')

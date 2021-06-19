@@ -71,6 +71,9 @@ p.add_argument('--precision_grad', type=str, default="float32",  # default="uint
 p.add_argument('--loss_scale', type=float, default=0,  # default=16,
                help='loss is divided by 2 ** this')
 
+p.add_argument('--start_step', type=int, default=0,
+               help='The training step to resume from')
+
 args = p.parse_args()
 
 if not args.vocab:
@@ -114,6 +117,6 @@ model = SwarmModel(
     rev_layers=args.n_layer,
 )
 swarm = Swarm(model, optimizer, 2 ** args.loss_scale, train_dataset.get_samples, prec)
-swarm.run(10000000, f"runs/{args.name}", f"ckpt/{args.name}")
+swarm.run(10000000, f"runs/{args.name}", f"ckpt/{args.name}", start_step=args.start_step)
 
 ray.shutdown()
