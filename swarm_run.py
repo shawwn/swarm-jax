@@ -9,7 +9,7 @@ from functools import partial
 from swarm_jax.swarm_layer import NetworkPrecision
 
 from loader import TextLoader, dtype_size
-from swarm_jax.model import SwarmModel, char_layer_init, additive_weight_decay
+from swarm_jax.model import SwarmModel, char_layer_init  #, additive_weight_decay
 from swarm_jax.swarm import Swarm
 
 import ray
@@ -61,7 +61,7 @@ p.add_argument('--eps', type=float, default=1e-6,
                help='adam optimizer epsilon')
 p.add_argument('--clip_by_global_norm', type=float, default=0.25,
                help='clip gradients by global norm')
-p.add_argument('--weight_decay', type=float, default=0.0)
+#p.add_argument('--weight_decay', type=float, default=0.0)
 p.add_argument('--batch', type=int, default=64,
                help='the global batch size')
 
@@ -103,7 +103,7 @@ train_dataset = TextLoader(args.dataset,
 chain = [
     optax.clip_by_global_norm(args.clip_by_global_norm) if args.clip_by_global_norm else None,
     optax.adam(args.lr, b1=args.beta1, b2=args.beta2, eps=args.eps),
-    additive_weight_decay(args.weight_decay) if args.weight_decay else None,
+    # additive_weight_decay(args.weight_decay) if args.weight_decay else None,
 ]
 optimizer = optax.chain(*[x for x in chain if x is not None])
 
